@@ -1,0 +1,41 @@
+/* селектор тегу */
+body {
+    font-family: sans-serif;
+}
+
+/* селектор класу + явне керування блоковою моделлю */
+.box-model {
+    box-sizing: border-box;
+    margin: 10px;
+    padding: 15px;
+    border: 2px solid black;
+}
+
+/* Селектор ID + CSS Grid */
+#layout-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Дві колонки */
+    gap: 10px;
+}
+
+/* Селектор атрибута */
+a[target="_blank"] {
+    text-decoration: none;
+}
+
+/* псевдоклас 1 */
+a:hover {
+    color: red;
+}
+
+/* псевдоклас 2 */
+section:first-child {
+    background-color: lightgray;
+}
+
+/* медіазапит */
+@media (max-width: 600px) {
+    #layout-grid {
+        grid-template-columns: 1fr; /* на одну колонку */
+    }
+}
