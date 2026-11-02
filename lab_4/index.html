@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Лабораторна робота</title>
+    <style>
+        :root { --bg: #fff; --tc: #333; --cb: #f9f9f9; --bc: #ddd; } /* css-змінні для світлої теми */
+        body.dark { --bg: #121212; --tc: #fff; --cb: #1e1e1e; --bc: #333; } /* css-змінні для темної теми */
+        body { font-family: sans-serif; background: var(--bg); color: var(--tc); margin: 0; padding: 20px; transition: .3s; } /* формат */
+        .container { max-width: 800px; margin: auto; }
+        button { padding: 10px; cursor: pointer; background: #007bff; color: #fff; border: none; border-radius: 5px; } /* стилізація кнопок */
+        .comment { background: var(--cb); border: 1px solid var(--bc); padding: 15px; margin-bottom: 10px; } /* стилізація коментаря */
+        .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 9; } /* фон вікна */
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); background: var(--bg); padding: 30px; border-radius: 10px; z-index: 10; width: 300px; } /* стилізація вікна */
+        .modal form { display: flex; flex-direction: column; gap: 10px; }
+        .modal input, .modal textarea { padding: 10px; background: var(--cb); color: var(--tc); border: 1px solid var(--bc); }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div style="display: flex; justify-content: space-between;">
+            <h1>Відгуки</h1>
+            <button id="themeBtn">Перемкнути тему</button> <!-- кнопка перемикання теми -->
+        </div>
+        
+        <div id="comments">Завантаження...</div>
+
+        <footer style="margin-top: 30px; border-top: 1px solid var(--bc);">
+            <h3>LocalStorage:</h3>
+            <ul id="storageData"></ul>
+        </footer>
+    </div>
+
+    <div class="overlay" id="overlay"></div> <!-- затемнення екрана при появі форми -->
+    <div class="modal" id="modal">
+        <h3>Зворотний зв'язок</h3>
+        <form action="https://formspree.io/f/mjyyppzg" method="POST"> <!-- форма яка надсилає пост запит -->
+            <input type="text" name="name" placeholder="Ім'я" required>
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="tel" name="phone" placeholder="Телефон"> <!-- телефон необов'язковий -->
+            <textarea name="message" rows="4" placeholder="Повідомлення" required></textarea> <!-- поле для повідомлення -->
+            <button type="submit">Надіслати</button>
+            <button type="button" id="closeBtn" style="background: #dc3545;">Закрити</button> <!-- кнопка закриття вікна -->
+        </form>
+    </div>
+
+    <script>
+        const ls = localStorage;
+        ls.setItem('OS', navigator.platform); // назва операційної системи
+        ls.setItem('Browser', navigator.userAgent); // дані про браузер
+        
+        const storageKeys = Object.keys(ls);
+        const storageItemsHtml = storageKeys.map(k => `<li><b>${k}:</b> ${ls.getItem(k)}</li>`); // для кожного ключа створюємо html-рядок <li> з назвою і значенням
+        const finalStorageHtml = storageItemsHtml.join('');
+        document.getElementById('storageData').innerHTML = finalStorageHtml;
+
+        const fetchUrl = 'https://jsonplaceholder.typicode.com/posts/19/comments'; // юрл для коментарів з варіантом
+        fetch(fetchUrl) // запит
+            .then(r => r.json()) // розкодовуємо
+            .then(d => {
+                const commentsHtml = d.map(c => `<div class="comment"><h4>${c.name}</h4><em>${c.email}</em><p>${c.body}</p></div>`);
+                document.getElementById('comments').innerHTML = commentsHtml.join(''); // html блоки в контейнер коментарів
+            })
+            .catch(() => {
+                document.getElementById('comments').innerText = 'Помилка'; // якщо сталася помилка
+            });
+
+        const m = document.getElementById('modal'); // вікно
+        const o = document.getElementById('overlay'); // затемнення
+        
+        setTimeout(() => {
+            m.style.display = 'block';
+            o.style.display = 'block';
+        }, 60000); // 60 мс = 1 хв
+        
+        document.getElementById('closeBtn').onclick = () => { // подія кліку за закриття вікна
+            m.style.display = 'none'; // забираєм вікно
+            o.style.display = 'none'; // забираєм затемнення фону
+        };
+
+        const currentHour = new Date().getHours(); // поточний час
+        const bodyTag = document.body;
+        
+        if (currentHour >= 7 && currentHour < 21) { // перевірка часу
+            bodyTag.className = ''; // якщо пройшо то світла тема
+        } else { // якщо ні то темна тема
+            bodyTag.className = 'dark';
+        }
+        
+        document.getElementById('themeBtn').onclick = () => { // подія клік за зміну теми
+            bodyTag.classList.toggle('dark');
+        };
+    </script>
+</body>
+</html>
